@@ -1,5 +1,5 @@
 # WindowsGSM.TREASON
-🧩 WindowsGSM plugin for supporting Klaus Veen's Treason Dedicated Server 
+🧩 WindowsGSM plugin for supporting Treason Dedicated Server
 
 ## Requirements
 [WindowsGSM](https://github.com/WindowsGSM/WindowsGSM) >= 1.21.0
