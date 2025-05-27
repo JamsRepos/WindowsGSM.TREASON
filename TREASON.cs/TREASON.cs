@@ -9,38 +9,46 @@ using WindowsGSM.GameServer.Query;
 
 namespace WindowsGSM.Plugins
 {
-    public class Treason : SteamCMDAgent
+    public class TREASON : SteamCMDAgent
     {
+		// - Plugin Details
         public Functions.Plugin Plugin = new Functions.Plugin
         {
-            name = "WindowsGSM.Treason",
-            author = "GTVolk",
+            name = "WindowsGSM.Treason", // WindowsGSM.XXXX
+            author = "JamsRepos",
             description = "🧩 WindowsGSM plugin for supporting Treason Dedicated Server",
             version = "1.0",
-            url = "https://github.com/JamsRepos/WindowsGSM.TREASON",
-            color = "#b92015"
+            url = "https://github.com/JamsRepos/WindowsGSM.TREASON", // Github repository link (Best practice)
+            color = "#b92015" // Color Hex
         };
 
-        public Treason(ServerConfig serverData) : base(serverData) => base.serverData = _serverData = serverData;
+        // - Standard Constructor and properties
+		public TREASON(ServerConfig serverData) : base(serverData) => base.serverData = _serverData = serverData;
         private readonly ServerConfig _serverData;
 
+		// - Settings properties for SteamCMD installer
         public override bool loginAnonymous => true;
-        public override string AppId => "1875500";
-        public override string StartPath => "srcds.exe";
-        public string FullName = "Treason Dedicated Server";
-        public bool AllowsEmbedConsole = true;
-        public int PortIncrements = 1;
-        public object QueryMethod = new A2S();
+        public override string AppId => "1875500"; // Game server appId
 
-        public string Port { get { return "27015"; } }
-        public string QueryPort { get { return "27015"; } }
-        public string Game { get { return "treason"; } }
-        public string Defaultmap { get { return "t_church"; } }
-        public string Maxplayers { get { return "16"; } }
-        public string Additional { get { return "-nocrashdialog +clientport {{clientport}}"; } }
+        // - Game server Fixed variables
+        public override string StartPath => "srcds.exe"; // Game server start path
+        public string FullName = "Treason Dedicated Server"; // Game server FullName
+        public bool AllowsEmbedConsole = true;  // Does this server support output redirect?
+        public int PortIncrements = 1; // This tells WindowsGSM how many ports should skip after installation
+        public object QueryMethod = new A2S(); // Query method should be use on current server type. Accepted value: null or new A2S() or new FIVEM() or new UT3()
 
-        public async void CreateServerCFG()
+        // - Game server default values
+		public string Port { get { return "27015"; } } // Default port
+        public string QueryPort { get { return "27015"; } } // Default query port
+        public string Game { get { return "treason"; } } // Default game name
+        public string Defaultmap { get { return "t_church"; } } // Default map name
+        public string Maxplayers { get { return "16"; } } // Default maxplayers
+        public string Additional { get { return "-nocrashdialog +clientport {{clientport}}"; } } // Additional server start parameter
+
+		// - Create a default cfg for the game server after installation
+		public async void CreateServerCFG()
         {
+            //Download server.cfg
             string configPath = Functions.ServerPath.GetServersServerFiles(serverData.ServerID, Game, "cfg/server.cfg");
             if (await Functions.Github.DownloadGameServerConfig(configPath, serverData.ServerGame))
             {
@@ -50,6 +58,7 @@ namespace WindowsGSM.Plugins
                 File.WriteAllText(configPath, configText);
             }
 
+            //Edit WindowsGSM.cfg
             string configFile = Functions.ServerPath.GetServersConfigs(serverData.ServerID, "WindowsGSM.cfg");
             if (File.Exists(configFile))
             {
@@ -59,6 +68,7 @@ namespace WindowsGSM.Plugins
             }
         }
 
+        // - Start server function, return its Process to WindowsGSM
         public async Task<Process> Start()
         {
             string path = Functions.ServerPath.GetServersServerFiles(serverData.ServerID, StartPath);
@@ -79,6 +89,7 @@ namespace WindowsGSM.Plugins
             sb.Append(string.IsNullOrWhiteSpace(serverData.ServerIP) ? string.Empty : $" -ip {serverData.ServerIP}");
             sb.Append(string.IsNullOrWhiteSpace(serverData.ServerPort) ? string.Empty : $" -port {serverData.ServerPort}");
             sb.Append(string.IsNullOrWhiteSpace(serverData.ServerMaxPlayer) ? string.Empty : $" -maxplayers {serverData.ServerMaxPlayer}");
+            sb.Append(string.IsNullOrWhiteSpace(serverData.ServerGSLT) ? string.Empty : $" +sv_setsteamaccount {serverData.ServerGSLT}");
             sb.Append(string.IsNullOrWhiteSpace(serverData.ServerParam) ? string.Empty : $" {serverData.ServerParam}");
             sb.Append(string.IsNullOrWhiteSpace(serverData.ServerMap) ? string.Empty : $" +map {serverData.ServerMap}");
             if (serverData.ServerParam.Contains("-game ")) { sb.Replace($" -game {Game}", ""); }
